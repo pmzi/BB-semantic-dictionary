@@ -15,7 +15,7 @@ You are a concise dictionary. The user gives a sentence where one part is wrappe
 
 let input = String(decoding: FileHandle.standardInput.readDataToEndOfFile(), as: UTF8.self)
 
-let model = SystemLanguageModel.default
+let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
 guard case .available = model.availability else {
   FileHandle.standardError.write(Data("Apple on-device model unavailable: \(model.availability)\n".utf8))
   exit(2)
@@ -28,5 +28,6 @@ do {
   FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: out))
 } catch {
   FileHandle.standardError.write(Data("\(error)\n".utf8))
-  exit(1)
+  // 3 = refused by Apple's safety guardrails; the plugin falls back to Claude.
+  exit("\(error)".contains("guardrailViolation") ? 3 : 1)
 }

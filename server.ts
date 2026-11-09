@@ -82,6 +82,12 @@ function runClaude(model: string, prompt: string): Promise<string> {
 
 // Apple's on-device model, through a tiny Swift helper (native/main.swift,
 // built to bin/applelm). Reads the sentence on stdin, prints JSON.
+class GuardrailError extends Error {
+  constructor() {
+    super("Apple's on-device model refused this text");
+  }
+}
+
 function applelmPath(): string {
   const here = dirname(fileURLToPath(import.meta.url));
   return [join(here, "bin", "applelm"), join(here, "..", "bin", "applelm")]
@@ -98,6 +104,7 @@ function runApple(prompt: string): Promise<string> {
     child.on("close", (code) => {
       clearTimeout(timer);
       if (code === 0 && out.trim()) resolve(out);
+      else if (code === 3) reject(new GuardrailError());
       else reject(new Error(`On-device model failed: ${(err || out).trim().slice(0, 200)}`));
     });
     child.stdin.end(prompt);
@@ -161,7 +168,22 @@ export default async function plugin(bb: BbPluginApi) {
         throw new Error('Put the part you want explained in "quotes".');
       }
       const { model } = await settings.get();
-      const raw = model === "apple" ? await runApple(text) : await runClaude(model, text);
+      let used = model;
+      let raw: string;
+      if (model === "apple") {
+        try {
+          raw = await runApple(text);
+        } catch (e) {
+          if (!(e instanceof GuardrailError)) throw e;
+          // Apple's safety filter refuses slang/profanity/violence words that
+          // a dictionary still needs to explain: retry with Claude Haiku.
+          bb.log.info("on-device guardrail hit, falling back to haiku");
+          used = "haiku";
+          raw = await runClaude("haiku", text);
+        }
+      } else {
+        raw = await runClaude(model, text);
+      }
       let entry: Entry;
       try {
         const json = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
@@ -173,7 +195,7 @@ export default async function plugin(bb: BbPluginApi) {
       } catch {
         entry = { term, meaning: raw.trim().slice(0, 500), examples: [] };
       }
-      await remember(entry, model);
+      await remember(entry, used);
       return entry;
     },
   });

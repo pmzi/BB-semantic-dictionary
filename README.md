@@ -11,6 +11,22 @@ You get a short meaning of that part *as used in your sentence*, plus two exampl
 - Switch model with the chips under the box: On-device, Haiku, Sonnet, Opus (the last three go through your local [Claude Code](https://claude.com/claude-code) install, no API key needed)
 - Any other alias or model ID can be set in Settings → Plugins → Lookup → Model
 
+## Screenshots
+
+Dark, with the History tab on the right:
+
+![Lookup result in dark mode](docs/result.png)
+
+Light:
+
+![Lookup result in light mode](docs/result-light.png)
+
+Empty state:
+
+![Empty state](docs/empty.png)
+
+> These are renders of the plugin's own markup and CSS with sample data, not captures of the live BB window.
+
 ## Requirements
 
 - BB with plugin support

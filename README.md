@@ -4,7 +4,7 @@ A tiny dictionary plugin for [BB](https://getbb.app). Type a sentence and put th
 
 > He was "nonplussed" by the news.
 
-You get a short meaning of that part *as used in your sentence*, plus two examples. Everything you look up is remembered in a **History** list in the sidebar (click an entry to reopen it, × to remove it).
+You get a short meaning of that part *as used in your sentence*, plus two examples. No quotes? It explains the whole thing (a word, phrase, idiom or sentence). Everything you look up is remembered in a **History** list in the sidebar (click an entry to reopen it, × to remove it).
 
 - One text box, centered, with smooth animations
 - Runs on your Mac's **on-device Apple model** by default: free, private, offline

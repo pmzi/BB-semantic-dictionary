@@ -149,7 +149,7 @@ function Lookup() {
         </div>
       )}
       {!loading && !entry && !error && (
-        <div className="lk-hint">Wrap the part you want explained in “quotes”.</div>
+        <div className="lk-hint">Type a word or phrase. Or wrap one part of a sentence in “quotes”.</div>
       )}
     </div>
   );

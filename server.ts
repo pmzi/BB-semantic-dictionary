@@ -54,7 +54,7 @@ export const rpcContract = defineRpcContract({
   },
 });
 
-const SYSTEM = `You are a concise dictionary. The user gives a sentence where one part is wrapped in double quotes. Explain ONLY that quoted part as it is used in that sentence.
+const SYSTEM = `You are a concise dictionary. If part of the user's text is wrapped in double quotes, explain ONLY that quoted part as it is used in the sentence. If nothing is quoted, explain the meaning of the whole text (a word, phrase, idiom or sentence).
 Reply with JSON only, no markdown fences:
 {"term": "<the quoted part>", "meaning": "<one short plain-English sentence>", "examples": ["<short example sentence>", "<short example sentence>"]}
 Exactly 2 examples. Keep everything brief.`;
@@ -115,9 +115,10 @@ function runApple(prompt: string): Promise<string> {
   });
 }
 
-function extractTerm(text: string): string | null {
+// The quoted part if there is one, otherwise the whole input.
+function extractTerm(text: string): string {
   const m = text.match(/["“”]([^"“”]+)["“”]/);
-  return m ? m[1]!.trim() : null;
+  return (m ? m[1]! : text).trim();
 }
 
 const HISTORY_CHANGED = "history-changed";
@@ -179,9 +180,6 @@ export default async function plugin(bb: BbPluginApi) {
     },
     lookup: async ({ text }) => {
       const term = extractTerm(text);
-      if (term === null) {
-        throw new Error('Put the part you want explained in "quotes".');
-      }
       const { model } = await settings.get();
       let used = model;
       let raw: string;

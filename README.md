@@ -8,6 +8,8 @@ You get a short meaning of that part *as used in your sentence*, plus two exampl
 
 - One text box, centered, with smooth animations
 - Runs on your Mac's **on-device Apple model** by default: free, private, offline
+- A 🔊 button next to the word reads it aloud with macOS's built-in on-device voice
+- If Apple's safety filter refuses a sentence (slang, profanity), it automatically retries with Haiku through Claude Code
 - Switch model with the chips under the box: On-device, Haiku, Sonnet, Opus (the last three go through your local [Claude Code](https://claude.com/claude-code) install, no API key needed)
 - Any other alias or model ID can be set in Settings → Plugins → Lookup → Model
 

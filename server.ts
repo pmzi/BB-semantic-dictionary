@@ -38,6 +38,10 @@ export const rpcContract = defineRpcContract({
     input: z.object({ id: z.string() }),
     output: z.object({ ok: z.boolean() }),
   },
+  speak: {
+    input: z.object({ text: z.string().trim().min(1).max(200) }),
+    output: z.object({ ok: z.boolean() }),
+  },
   history_clear: { input: z.null(), output: z.object({ ok: z.boolean() }) },
   lookup: {
     input: z.object({ text: z.string().trim().min(1).max(2000) }),
@@ -147,7 +151,18 @@ export default async function plugin(bb: BbPluginApi) {
     },
   });
 
+  // Reads text aloud with macOS's built-in on-device voice (`say`).
+  let speaking: ReturnType<typeof spawn> | null = null;
+  bb.onDispose(() => { speaking?.kill(); });
+
   bb.rpc.register(rpcContract, {
+    speak: async ({ text }) => {
+      speaking?.kill();
+      // "--" stops a word starting with "-" being parsed as a flag.
+      speaking = spawn("/usr/bin/say", ["--", text], { stdio: "ignore" });
+      speaking.on("error", (e) => bb.log.warn(`say failed: ${e.message}`));
+      return { ok: true };
+    },
     history_list: async () => ({ items: await readHistory() }),
     history_delete: async ({ id }) => {
       await writeHistory((await readHistory()).filter((i) => i.id !== id));

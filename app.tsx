@@ -41,6 +41,8 @@ const CSS = `
 .lk-x { border: 0; background: transparent; color: inherit; opacity: 0; cursor: pointer; font-size: 14px; transition: opacity .2s; }
 .lk-hrow:hover .lk-x { opacity: .5; } .lk-x:hover { opacity: 1 !important; }
 .lk-hclear { margin: 8px auto 0; font-size: 11px; opacity: .4; border: 0; background: transparent; color: inherit; cursor: pointer; } .lk-hclear:hover { opacity: .9; }
+.lk-speak { border: 0; background: transparent; color: inherit; cursor: pointer; opacity: .45; font-size: 15px; padding: 2px 6px; margin-left: 4px; border-radius: 8px; transition: opacity .2s, transform .15s, background .2s; vertical-align: middle; }
+.lk-speak:hover { opacity: 1; transform: scale(1.12); background: color-mix(in srgb, currentColor 10%, transparent); }
 .lk-hint { font-size: 13px; opacity: .4; }
 `;
 
@@ -134,7 +136,10 @@ function Lookup() {
       {error && <div className="lk-err">{error}</div>}
       {entry && (
         <div className="lk-card" key={shown}>
-          <div className="lk-term">{entry.term}</div>
+          <div className="lk-term">
+            {entry.term}
+            <button className="lk-speak" title="Read aloud" onClick={() => void rpc.call("speak", { text: entry.term }).catch(() => {})}>🔊</button>
+          </div>
           <div className="lk-meaning">{entry.meaning}</div>
           {entry.examples.map((ex, i) => (
             <div key={i} className="lk-ex" style={{ animationDelay: `${0.12 * (i + 1)}s` }}>
